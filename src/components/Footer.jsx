@@ -23,8 +23,8 @@ const Footer = () => {
               <span className="text-xl sm:text-2xl font-bold">EMSINET</span>
             </div>
             <p className="text-sm sm:text-base text-gray-400 dark:text-gray-500 leading-relaxed">
-              Conectamos tu mundo digital con los mejores servicios de internet 
-              y streaming. Tu satisfacción es nuestra prioridad.
+              Conectamos tu mundo digital con los mejores servicios de internet. 
+              Tu satisfacción es nuestra prioridad.
             </p>
           </div>
 
@@ -34,9 +34,6 @@ const Footer = () => {
             <ul className="space-y-2 text-sm sm:text-base text-gray-400 dark:text-gray-500">
               <li className="hover:text-white dark:hover:text-gray-300 transition-colors cursor-pointer">
                 Internet Residencial
-              </li>
-              <li className="hover:text-white dark:hover:text-gray-300 transition-colors cursor-pointer">
-                Servicios de Streaming
               </li>
             </ul>
           </div>
@@ -85,7 +82,7 @@ const Footer = () => {
             © 2025 EMSINET - Todos los derechos reservados
           </p>
           <p className="text-xs text-gray-500 dark:text-gray-600 mt-1 sm:mt-2">
-            Internet y Streaming de calidad para tu hogar
+            Internet de calidad para tu hogar
           </p>
           <p className="text-xs text-gray-600 dark:text-gray-500 mt-3 sm:mt-4 font-semibold">
             POWERED BY{' '}

@@ -1,4 +1,4 @@
-import { FiWifi, FiTv, FiArrowDown } from 'react-icons/fi';
+import { FiWifi, FiArrowDown } from 'react-icons/fi';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
 const Hero = () => {
@@ -24,7 +24,7 @@ const Hero = () => {
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4 px-4">
             <span className="block">EMSINET</span>
             <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-normal text-gray-600 dark:text-gray-400 mt-2 sm:mt-4 block">
-              Internet y Streaming
+              Internet
             </span>
           </h1>
 
@@ -33,7 +33,7 @@ const Hero = () => {
             Conectamos tu mundo digital con los mejores servicios de internet
             <br className="hidden sm:block" />
             <span className="sm:hidden"> </span>
-            y las plataformas de streaming más populares
+            de alta velocidad para tu hogar
           </p>
 
           {/* Features */}
@@ -41,10 +41,6 @@ const Hero = () => {
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 px-4 sm:px-6 py-2 sm:py-3 rounded-lg flex items-center space-x-2">
               <FiWifi className="text-blue-600 dark:text-blue-400 text-lg sm:text-xl flex-shrink-0" />
               <span className="text-sm sm:text-base text-gray-800 dark:text-gray-200 font-medium">Internet de Alta Velocidad</span>
-            </div>
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 px-4 sm:px-6 py-2 sm:py-3 rounded-lg flex items-center space-x-2">
-              <FiTv className="text-blue-600 dark:text-blue-400 text-lg sm:text-xl flex-shrink-0" />
-              <span className="text-sm sm:text-base text-gray-800 dark:text-gray-200 font-medium">Streaming Premium</span>
             </div>
           </div>
 
