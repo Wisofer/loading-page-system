@@ -1,5 +1,7 @@
-import { internetServices, streamingServices } from '../data/services';
-import { FiWifi, FiTv, FiCheck } from 'react-icons/fi';
+import { internetServices } from '../data/services';
+// import { streamingServices } from '../data/services'; // Comentado - Streaming oculto por solicitud del cliente
+import { FiWifi, FiCheck } from 'react-icons/fi';
+// import { FiTv } from 'react-icons/fi'; // Comentado - Streaming oculto
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
 const ServiceCard = ({ service, isStreaming = false, delay = 0 }) => {
@@ -60,7 +62,7 @@ const ServiceCard = ({ service, isStreaming = false, delay = 0 }) => {
 
 const Services = () => {
   const [headerRef, headerVisible] = useScrollAnimation({ threshold: 0.2 });
-  const [streamingHeaderRef, streamingHeaderVisible] = useScrollAnimation({ threshold: 0.2 });
+  // const [streamingHeaderRef, streamingHeaderVisible] = useScrollAnimation({ threshold: 0.2 }); // Comentado - Streaming oculto
 
   return (
     <section id="services" className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 bg-gray-50 dark:bg-gray-800/50 transition-colors duration-300">
@@ -94,7 +96,8 @@ const Services = () => {
           </div>
         </div>
 
-        {/* Streaming Services */}
+        {/* Streaming Services - COMENTADO: Oculto por solicitud del cliente */}
+        {/* 
         <div>
           <div 
             ref={streamingHeaderRef}
@@ -123,6 +126,7 @@ const Services = () => {
             ))}
           </div>
         </div>
+        */}
       </div>
     </section>
   );
