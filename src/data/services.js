@@ -42,7 +42,8 @@ export const internetServices = [
     description: "Servicio de Internet Residencial RE hasta 20Mbps",
     price: 1288.00,
     currency: "C$",
-    status: "Activo"
+    status: "Activo",
+    isDecemberOffer: true
   }
 ];
 

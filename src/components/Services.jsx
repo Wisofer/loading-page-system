@@ -1,6 +1,6 @@
 import { internetServices } from '../data/services';
 // import { streamingServices } from '../data/services'; // Comentado - Streaming oculto por solicitud del cliente
-import { FiWifi, FiCheck } from 'react-icons/fi';
+import { FiWifi, FiCheck, FiTag } from 'react-icons/fi';
 // import { FiTv } from 'react-icons/fi'; // Comentado - Streaming oculto
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
@@ -10,14 +10,24 @@ const ServiceCard = ({ service, isStreaming = false, delay = 0 }) => {
   return (
     <div 
       ref={ref}
-      className={`group bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 ${
+      className={`group bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden ${
+        service.isDecemberOffer 
+          ? 'border-2 border-orange-400 dark:border-orange-500 hover:border-orange-500 dark:hover:border-orange-400' 
+          : 'border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'
+      } ${
         isVisible ? 'scroll-visible' : 'scroll-hidden'
       }`}
       style={{ transitionDelay: `${delay}ms` }}
     >
       <div className="p-4 sm:p-6">
-        {/* Status Badge */}
-        <div className="flex justify-end mb-4">
+        {/* Status Badge and December Offer Badge */}
+        <div className="flex justify-end mb-4 gap-2">
+          {service.isDecemberOffer && (
+            <span className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 text-xs font-bold px-2 sm:px-3 py-1 rounded-full flex items-center space-x-1 animate-pulse">
+              <FiTag className="text-xs" />
+              <span>OFERTA DICIEMBRE</span>
+            </span>
+          )}
           <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-semibold px-2 sm:px-3 py-1 rounded-full flex items-center space-x-1">
             <FiCheck className="text-xs" />
             <span>{service.status}</span>
@@ -85,13 +95,17 @@ const Services = () => {
               Planes de internet residencial de alta velocidad para tu hogar
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
             {internetServices.map((service, index) => (
-              <ServiceCard 
-                key={service.id} 
-                service={service} 
-                delay={index * 100}
-              />
+              <div
+                key={service.id}
+                className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] max-w-sm"
+              >
+                <ServiceCard 
+                  service={service} 
+                  delay={index * 100}
+                />
+              </div>
             ))}
           </div>
         </div>
