@@ -36,14 +36,6 @@ const Hero = () => {
             de alta velocidad para tu hogar
           </p>
 
-          {/* Features */}
-          <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-8 sm:mt-12 px-4">
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 px-4 sm:px-6 py-2 sm:py-3 rounded-lg flex items-center space-x-2">
-              <FiWifi className="text-blue-600 dark:text-blue-400 text-lg sm:text-xl flex-shrink-0" />
-              <span className="text-sm sm:text-base text-gray-800 dark:text-gray-200 font-medium">Internet de Alta Velocidad</span>
-            </div>
-          </div>
-
           {/* Scroll Indicator */}
           <div className="mt-12 sm:mt-16">
             <button

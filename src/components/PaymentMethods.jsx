@@ -117,7 +117,7 @@ const PaymentMethods = () => {
             Métodos de Pago
           </h2>
           <p className="text-base sm:text-lg lg:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto px-4">
-            Realiza tus pagos de forma segura y rápida a través de nuestros bancos asociados
+            Estas son las cuentas donde puedes realizar tus pagos de forma segura y rápida
           </p>
         </div>
 
@@ -143,9 +143,17 @@ const PaymentMethods = () => {
             <div>
               <h4 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-white mb-2">Importante</h4>
               <p className="text-xs sm:text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                Después de realizar tu pago, por favor envía el comprobante a nuestro equipo 
-                para activar tu servicio de manera inmediata. Puedes contactarnos a través 
-                de nuestros canales oficiales.
+                Después de realizar tu pago, por favor envía el comprobante (recibo del pago) a nuestro equipo 
+                para procesar tu pago de manera inmediata. Puedes enviarlo a través de{' '}
+                <a 
+                  href="https://wa.me/50589308058"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-700 dark:hover:text-blue-300 underline"
+                >
+                  WhatsApp: 89308058
+                </a>
+                .
               </p>
             </div>
           </div>
