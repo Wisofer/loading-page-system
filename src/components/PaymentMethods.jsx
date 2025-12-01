@@ -1,6 +1,6 @@
 import { paymentMethods } from '../data/paymentMethods';
-import { FiCreditCard, FiCopy, FiCheck, FiDollarSign } from 'react-icons/fi';
-import { useState } from 'react';
+import { FiCreditCard, FiCopy, FiCheck, FiDollarSign, FiFileText } from 'react-icons/fi';
+import { useState, useEffect } from 'react';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
 const PaymentMethodCard = ({ method, delay = 0 }) => {
@@ -100,10 +100,37 @@ const PaymentMethodCard = ({ method, delay = 0 }) => {
 const PaymentMethods = () => {
   const [headerRef, headerVisible] = useScrollAnimation({ threshold: 0.2 });
   const [infoRef, infoVisible] = useScrollAnimation({ threshold: 0.2 });
+  const [fromPDF, setFromPDF] = useState(false);
+
+  useEffect(() => {
+    // Detectar si viene de un PDF
+    const urlParams = new URLSearchParams(window.location.search);
+    const hash = window.location.hash;
+    if (urlParams.get('from') === 'pdf' || hash === '#payments' || hash === '#pagos') {
+      setFromPDF(true);
+    }
+  }, []);
 
   return (
     <section id="payments" className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 bg-white dark:bg-gray-900 transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
+        {/* Banner destacado cuando viene de PDF */}
+        {fromPDF && (
+          <div className="mb-6 sm:mb-8 bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 text-white rounded-xl p-4 sm:p-6 shadow-lg animate-fade-in">
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              <div className="flex-shrink-0">
+                <FiFileText className="text-2xl sm:text-3xl" />
+              </div>
+              <div>
+                <h3 className="text-lg sm:text-xl font-bold mb-1">¡Bienvenido desde tu factura!</h3>
+                <p className="text-sm sm:text-base text-blue-100">
+                  Aquí encontrarás todas las formas de realizar tu pago de manera segura y rápida.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <div 
           ref={headerRef}
           className={`text-center mb-10 sm:mb-12 lg:mb-16 ${
