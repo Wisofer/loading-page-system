@@ -1,6 +1,7 @@
-import { paymentMethods } from '../data/paymentMethods';
-import { FiCreditCard, FiCopy, FiCheck, FiDollarSign } from 'react-icons/fi';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { paymentMethods } from '../data/paymentMethods'; // Fallback datos estáticos
+import { LandingService } from '../services/api.service';
+import { FiCreditCard, FiCopy, FiCheck, FiDollarSign, FiAlertCircle } from 'react-icons/fi';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
 const PaymentMethodCard = ({ method, delay = 0 }) => {
@@ -100,6 +101,121 @@ const PaymentMethodCard = ({ method, delay = 0 }) => {
 const PaymentMethods = () => {
   const [headerRef, headerVisible] = useScrollAnimation({ threshold: 0.2 });
   const [infoRef, infoVisible] = useScrollAnimation({ threshold: 0.2 });
+  
+  // Estado para los métodos de pago de la API
+  const [methods, setMethods] = useState(paymentMethods); // Usar datos estáticos como fallback
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Cargar métodos de pago desde la API
+  useEffect(() => {
+    const fetchPaymentMethods = async () => {
+      try {
+        setLoading(true);
+        const response = await LandingService.getMetodosPago();
+        
+        // DEBUG: Ver qué está retornando la API
+        console.log('📥 Respuesta completa de la API:', response);
+        console.log('📥 Tipo de respuesta:', typeof response);
+        console.log('📥 Es array?:', Array.isArray(response));
+        
+        // Mapear la respuesta de la API al formato esperado por el componente
+        if (response && Array.isArray(response)) {
+          console.log('📋 Mapeando array directo, cantidad:', response.length);
+          const mappedMethods = mapPaymentMethods(response);
+          console.log('✅ Métodos mapeados:', mappedMethods);
+          setMethods(mappedMethods);
+          setError(null);
+        } else if (response && response.data && Array.isArray(response.data)) {
+          console.log('📋 Mapeando response.data, cantidad:', response.data.length);
+          const mappedMethods = mapPaymentMethods(response.data);
+          console.log('✅ Métodos mapeados:', mappedMethods);
+          setMethods(mappedMethods);
+          setError(null);
+        } else {
+          console.warn('⚠️ Formato de respuesta inesperado:', response);
+        }
+      } catch (err) {
+        console.error('❌ Error al cargar métodos de pago de la API:', err);
+        setError('No se pudieron cargar los métodos de pago. Mostrando datos guardados.');
+        // Mantener los datos estáticos como fallback
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPaymentMethods();
+  }, []);
+
+  // Función auxiliar para mapear los métodos de pago
+  const mapPaymentMethods = (apiMethods) => {
+    // Agrupar por banco
+    const grouped = {};
+    
+    apiMethods.forEach((method) => {
+      // Soportar múltiples nombres de campos (de la API real y fallback)
+      const bankName = method.nombreBanco || method.banco || method.bank || method.name;
+      const accountType = method.tipoCuenta || method.tipo || method.type;
+      const accountNumber = method.numeroCuenta || method.cuenta || method.account || method.number;
+      const mensaje = method.mensaje || method.message;
+      const icono = method.icono || method.icon;
+      
+      console.log('🔍 Procesando método:', { bankName, accountType, accountNumber, icono });
+      
+      if (!grouped[bankName]) {
+        grouped[bankName] = {
+          name: bankName,
+          logo: icono || getBankLogo(bankName),  // Usar el icono de la API si existe
+          accounts: [],
+          comingSoon: false
+        };
+      }
+      
+      // Verificar si es "Próximamente"
+      if (accountType?.toLowerCase().includes('próximamente') || 
+          accountType?.toLowerCase().includes('proximamente') ||
+          mensaje?.toLowerCase().includes('próximamente')) {
+        grouped[bankName].comingSoon = true;
+        console.log('⏳ Detectado como próximamente:', bankName);
+      } else if (accountNumber && accountNumber !== '-' && accountNumber !== '') {
+        grouped[bankName].accounts.push({
+          type: accountType,
+          symbol: method.moneda || getAccountSymbol(accountType, accountNumber),  // Usar moneda de la API
+          number: accountNumber
+        });
+        console.log('✅ Cuenta agregada:', { bankName, accountType, accountNumber });
+      }
+    });
+    
+    const result = Object.values(grouped).map((method, index) => ({
+      id: index + 1,
+      ...method
+    }));
+    
+    console.log('🎯 Resultado final del mapeo:', result);
+    return result;
+  };
+
+  // Función auxiliar para obtener el logo del banco
+  const getBankLogo = (bankName) => {
+    const name = bankName?.toLowerCase() || '';
+    if (name.includes('banpro')) return '🏦';
+    if (name.includes('lafise')) return '🏛️';
+    if (name.includes('bac')) return '💳';
+    return '🏦'; // Por defecto
+  };
+
+  // Función auxiliar para obtener el símbolo de la cuenta
+  const getAccountSymbol = (type, number) => {
+    const typeStr = type?.toLowerCase() || '';
+    if (typeStr.includes('córdoba')) return 'C$';
+    if (typeStr.includes('dólar') || typeStr.includes('dolar')) return '$';
+    if (typeStr.includes('móvil') || typeStr.includes('movil') || typeStr.includes('billetera')) return '📱';
+    // Detectar por el número si empieza con $ o C$
+    if (number?.startsWith('$')) return '$';
+    if (number?.startsWith('C$')) return 'C$';
+    return 'C$'; // Por defecto
+  };
 
   return (
     <section id="payments" className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 bg-white dark:bg-gray-900 transition-colors duration-300">
@@ -121,11 +237,28 @@ const PaymentMethods = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-10 lg:mb-12">
-          {paymentMethods.map((method, index) => (
-            <PaymentMethodCard key={method.id} method={method} delay={index * 150} />
-          ))}
-        </div>
+        {/* Error message */}
+        {error && (
+          <div className="max-w-2xl mx-auto mb-6 bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-4 rounded">
+            <div className="flex items-center">
+              <FiAlertCircle className="text-yellow-400 mr-2" />
+              <p className="text-sm text-yellow-700 dark:text-yellow-300">{error}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Loading state */}
+        {loading && methods.length === 0 ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400"></div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-10 lg:mb-12">
+            {methods.map((method, index) => (
+              <PaymentMethodCard key={method.id} method={method} delay={index * 150} />
+            ))}
+          </div>
+        )}
 
         {/* Info Box */}
         <div 

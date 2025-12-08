@@ -1,7 +1,8 @@
-import { internetServices } from '../data/services';
+import { useState, useEffect } from 'react';
+import { internetServices } from '../data/services'; // Fallback datos estáticos
+import { LandingService } from '../services/api.service';
 // import { streamingServices } from '../data/services'; // Comentado - Streaming oculto por solicitud del cliente
-import { FiWifi, FiCheck, FiTag } from 'react-icons/fi';
-// import { FiTv } from 'react-icons/fi'; // Comentado - Streaming oculto
+import { FiWifi, FiCheck, FiTag, FiAlertCircle, FiTv } from 'react-icons/fi';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
 const ServiceCard = ({ service, isStreaming = false, delay = 0 }) => {
@@ -73,6 +74,81 @@ const ServiceCard = ({ service, isStreaming = false, delay = 0 }) => {
 const Services = () => {
   const [headerRef, headerVisible] = useScrollAnimation({ threshold: 0.2 });
   // const [streamingHeaderRef, streamingHeaderVisible] = useScrollAnimation({ threshold: 0.2 }); // Comentado - Streaming oculto
+  
+  // Estado para los servicios de la API
+  const [services, setServices] = useState(internetServices); // Usar datos estáticos como fallback
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Cargar servicios desde la API
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        setLoading(true);
+        const response = await LandingService.getServicios();
+        
+        // DEBUG: Ver qué está retornando la API
+        console.log('📥 Respuesta servicios completa:', response);
+        console.log('📥 Es array?:', Array.isArray(response));
+        
+        // Mapear la respuesta de la API al formato esperado por el componente
+        if (response && Array.isArray(response)) {
+          console.log('📋 Mapeando servicios, cantidad:', response.length);
+          const mappedServices = response.map((service) => ({
+            id: service.id || service.orden,
+            name: service.nombreServicio || service.servicio || service.nombre || service.name,
+            category: "Internet",
+            description: service.descripcion || service.description || "",
+            price: parseFloat(service.precio || service.price || 0),
+            currency: service.moneda || service.currency || "C$",
+            status: service.estado || service.status || "Activo",
+            speed: service.velocidad || service.speed || "",
+            isDecemberOffer: service.etiqueta?.toUpperCase().includes('DICIEMBRE') || 
+                             service.etiqueta?.toUpperCase().includes('OFERTA') ||
+                             service.label?.toUpperCase().includes('DICIEMBRE') ||
+                             service.label?.toUpperCase().includes('OFERTA') ||
+                             false,
+            label: service.etiqueta || service.label || ""
+          }));
+          
+          console.log('✅ Servicios mapeados:', mappedServices);
+          setServices(mappedServices);
+          setError(null);
+        } else if (response && response.data && Array.isArray(response.data)) {
+          // Si la respuesta viene envuelta en un objeto con propiedad data
+          console.log('📋 Mapeando response.data servicios, cantidad:', response.data.length);
+          const mappedServices = response.data.map((service) => ({
+            id: service.id || service.orden,
+            name: service.nombreServicio || service.servicio || service.nombre || service.name,
+            category: "Internet",
+            description: service.descripcion || service.description || "",
+            price: parseFloat(service.precio || service.price || 0),
+            currency: service.moneda || service.currency || "C$",
+            status: service.estado || service.status || "Activo",
+            speed: service.velocidad || service.speed || "",
+            isDecemberOffer: service.etiqueta?.toUpperCase().includes('DICIEMBRE') || 
+                             service.etiqueta?.toUpperCase().includes('OFERTA') ||
+                             service.label?.toUpperCase().includes('DICIEMBRE') ||
+                             service.label?.toUpperCase().includes('OFERTA') ||
+                             false,
+            label: service.etiqueta || service.label || ""
+          }));
+          
+          console.log('✅ Servicios mapeados desde response.data:', mappedServices);
+          setServices(mappedServices);
+          setError(null);
+        }
+      } catch (err) {
+        console.error('Error al cargar servicios de la API:', err);
+        setError('No se pudieron cargar los servicios. Mostrando datos guardados.');
+        // Mantener los datos estáticos como fallback
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
 
   return (
     <section id="services" className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 bg-gray-50 dark:bg-gray-800/50 transition-colors duration-300">
@@ -95,19 +171,37 @@ const Services = () => {
               Planes de internet residencial de alta velocidad para tu hogar
             </p>
           </div>
-          <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
-            {internetServices.map((service, index) => (
-              <div
-                key={service.id}
-                className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] max-w-sm"
-              >
-                <ServiceCard 
-                  service={service} 
-                  delay={index * 100}
-                />
+
+          {/* Error message */}
+          {error && (
+            <div className="max-w-2xl mx-auto mb-6 bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-4 rounded">
+              <div className="flex items-center">
+                <FiAlertCircle className="text-yellow-400 mr-2" />
+                <p className="text-sm text-yellow-700 dark:text-yellow-300">{error}</p>
               </div>
-            ))}
-          </div>
+            </div>
+          )}
+
+          {/* Loading state */}
+          {loading && services.length === 0 ? (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400"></div>
+            </div>
+          ) : (
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
+              {services.map((service, index) => (
+                <div
+                  key={service.id}
+                  className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] max-w-sm"
+                >
+                  <ServiceCard 
+                    service={service} 
+                    delay={index * 100}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Streaming Services - COMENTADO: Oculto por solicitud del cliente */}
