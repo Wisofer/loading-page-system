@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { paymentMethods } from '../data/paymentMethods'; // Fallback datos estáticos
+// ❌ DATOS ESTÁTICOS DESHABILITADOS - SOLO USA LA API
+// import { paymentMethods } from '../data/paymentMethods';
 import { LandingService } from '../services/api.service';
 import { FiCreditCard, FiCopy, FiCheck, FiDollarSign, FiAlertCircle } from 'react-icons/fi';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
@@ -103,7 +104,7 @@ const PaymentMethods = () => {
   const [infoRef, infoVisible] = useScrollAnimation({ threshold: 0.2 });
   
   // Estado para los métodos de pago de la API
-  const [methods, setMethods] = useState(paymentMethods); // Usar datos estáticos como fallback
+  const [methods, setMethods] = useState([]); // ❌ SIN datos estáticos - SOLO API
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -114,31 +115,20 @@ const PaymentMethods = () => {
         setLoading(true);
         const response = await LandingService.getMetodosPago();
         
-        // DEBUG: Ver qué está retornando la API
-        console.log('📥 Respuesta completa de la API:', response);
-        console.log('📥 Tipo de respuesta:', typeof response);
-        console.log('📥 Es array?:', Array.isArray(response));
-        
         // Mapear la respuesta de la API al formato esperado por el componente
         if (response && Array.isArray(response)) {
-          console.log('📋 Mapeando array directo, cantidad:', response.length);
           const mappedMethods = mapPaymentMethods(response);
-          console.log('✅ Métodos mapeados:', mappedMethods);
           setMethods(mappedMethods);
           setError(null);
         } else if (response && response.data && Array.isArray(response.data)) {
-          console.log('📋 Mapeando response.data, cantidad:', response.data.length);
           const mappedMethods = mapPaymentMethods(response.data);
-          console.log('✅ Métodos mapeados:', mappedMethods);
           setMethods(mappedMethods);
           setError(null);
-        } else {
-          console.warn('⚠️ Formato de respuesta inesperado:', response);
         }
       } catch (err) {
-        console.error('❌ Error al cargar métodos de pago de la API:', err);
-        setError('No se pudieron cargar los métodos de pago. Mostrando datos guardados.');
-        // Mantener los datos estáticos como fallback
+        console.error('Error al cargar métodos de pago:', err);
+        setError('No se pudieron cargar los métodos de pago desde la API. Por favor, verifica tu conexión.');
+        setMethods([]); // ❌ NO usar datos estáticos - dejar vacío
       } finally {
         setLoading(false);
       }
@@ -160,8 +150,6 @@ const PaymentMethods = () => {
       const mensaje = method.mensaje || method.message;
       const icono = method.icono || method.icon;
       
-      console.log('🔍 Procesando método:', { bankName, accountType, accountNumber, icono });
-      
       if (!grouped[bankName]) {
         grouped[bankName] = {
           name: bankName,
@@ -176,24 +164,19 @@ const PaymentMethods = () => {
           accountType?.toLowerCase().includes('proximamente') ||
           mensaje?.toLowerCase().includes('próximamente')) {
         grouped[bankName].comingSoon = true;
-        console.log('⏳ Detectado como próximamente:', bankName);
       } else if (accountNumber && accountNumber !== '-' && accountNumber !== '') {
         grouped[bankName].accounts.push({
           type: accountType,
           symbol: method.moneda || getAccountSymbol(accountType, accountNumber),  // Usar moneda de la API
           number: accountNumber
         });
-        console.log('✅ Cuenta agregada:', { bankName, accountType, accountNumber });
       }
     });
     
-    const result = Object.values(grouped).map((method, index) => ({
+    return Object.values(grouped).map((method, index) => ({
       id: index + 1,
       ...method
     }));
-    
-    console.log('🎯 Resultado final del mapeo:', result);
-    return result;
   };
 
   // Función auxiliar para obtener el logo del banco

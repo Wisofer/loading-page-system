@@ -22,9 +22,6 @@ axiosInstance.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     
-    // Log para desarrollo (puedes comentar en producción)
-    console.log('🚀 Petición:', config.method.toUpperCase(), config.url);
-    
     return config;
   },
   (error) => {
@@ -36,9 +33,6 @@ axiosInstance.interceptors.request.use(
 // Interceptor para respuestas - Manejar errores globalmente
 axiosInstance.interceptors.response.use(
   (response) => {
-    // Log para desarrollo (puedes comentar en producción)
-    console.log('✅ Respuesta:', response.config.url, response.status);
-    
     return response;
   },
   (error) => {

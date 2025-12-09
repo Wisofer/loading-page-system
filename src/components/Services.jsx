@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { internetServices } from '../data/services'; // Fallback datos estáticos
+// ❌ DATOS ESTÁTICOS DESHABILITADOS - SOLO USA LA API
+// import { internetServices } from '../data/services';
 import { LandingService } from '../services/api.service';
 // import { streamingServices } from '../data/services'; // Comentado - Streaming oculto por solicitud del cliente
 import { FiWifi, FiCheck, FiTag, FiAlertCircle, FiTv } from 'react-icons/fi';
@@ -76,7 +77,7 @@ const Services = () => {
   // const [streamingHeaderRef, streamingHeaderVisible] = useScrollAnimation({ threshold: 0.2 }); // Comentado - Streaming oculto
   
   // Estado para los servicios de la API
-  const [services, setServices] = useState(internetServices); // Usar datos estáticos como fallback
+  const [services, setServices] = useState([]); // ❌ SIN datos estáticos - SOLO API
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -87,13 +88,8 @@ const Services = () => {
         setLoading(true);
         const response = await LandingService.getServicios();
         
-        // DEBUG: Ver qué está retornando la API
-        console.log('📥 Respuesta servicios completa:', response);
-        console.log('📥 Es array?:', Array.isArray(response));
-        
         // Mapear la respuesta de la API al formato esperado por el componente
         if (response && Array.isArray(response)) {
-          console.log('📋 Mapeando servicios, cantidad:', response.length);
           const mappedServices = response.map((service) => ({
             id: service.id || service.orden,
             name: service.nombreServicio || service.servicio || service.nombre || service.name,
@@ -111,12 +107,10 @@ const Services = () => {
             label: service.etiqueta || service.label || ""
           }));
           
-          console.log('✅ Servicios mapeados:', mappedServices);
           setServices(mappedServices);
           setError(null);
         } else if (response && response.data && Array.isArray(response.data)) {
           // Si la respuesta viene envuelta en un objeto con propiedad data
-          console.log('📋 Mapeando response.data servicios, cantidad:', response.data.length);
           const mappedServices = response.data.map((service) => ({
             id: service.id || service.orden,
             name: service.nombreServicio || service.servicio || service.nombre || service.name,
@@ -134,14 +128,13 @@ const Services = () => {
             label: service.etiqueta || service.label || ""
           }));
           
-          console.log('✅ Servicios mapeados desde response.data:', mappedServices);
           setServices(mappedServices);
           setError(null);
         }
       } catch (err) {
-        console.error('Error al cargar servicios de la API:', err);
-        setError('No se pudieron cargar los servicios. Mostrando datos guardados.');
-        // Mantener los datos estáticos como fallback
+        console.error('Error al cargar servicios:', err);
+        setError('No se pudieron cargar los servicios desde la API. Por favor, verifica tu conexión.');
+        setServices([]); // ❌ NO usar datos estáticos - dejar vacío
       } finally {
         setLoading(false);
       }
