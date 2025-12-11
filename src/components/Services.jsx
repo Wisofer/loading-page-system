@@ -22,26 +22,40 @@ const ServiceCard = ({ service, isStreaming = false, delay = 0 }) => {
       style={{ transitionDelay: `${delay}ms` }}
     >
       <div className="p-4 sm:p-6">
-        {/* Status Badge and December Offer Badge */}
-        <div className="flex justify-end mb-4 gap-2">
-          {service.isDecemberOffer && (
-            <span className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 text-xs font-bold px-2 sm:px-3 py-1 rounded-full flex items-center space-x-1 animate-pulse">
-              <FiTag className="text-xs" />
-              <span>OFERTA DICIEMBRE</span>
+        {/* Status Badge and Etiqueta Badge */}
+        <div className="flex justify-end mb-4 gap-1.5 sm:gap-2 flex-wrap">
+          {service.etiqueta && (
+            <span 
+              className={`${service.colorEtiqueta || 'bg-orange-100 dark:bg-orange-900/30'} ${service.colorEtiqueta ? 'text-white' : 'text-orange-700 dark:text-orange-400'} text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full flex items-center space-x-0.5 sm:space-x-1 animate-pulse max-w-full`}
+              title={service.etiqueta}
+            >
+              <FiTag className="text-[10px] sm:text-xs flex-shrink-0" />
+              <span className="truncate max-w-[120px] sm:max-w-[150px]">{service.etiqueta}</span>
             </span>
           )}
-          <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-semibold px-2 sm:px-3 py-1 rounded-full flex items-center space-x-1">
-            <FiCheck className="text-xs" />
+          {service.destacado && (
+            <span className="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full flex items-center space-x-0.5 sm:space-x-1 flex-shrink-0">
+              <span className="text-[10px] sm:text-xs">⭐</span>
+              <span>Destacado</span>
+            </span>
+          )}
+          <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full flex items-center space-x-0.5 sm:space-x-1 flex-shrink-0">
+            <FiCheck className="text-[10px] sm:text-xs" />
             <span>{service.status}</span>
           </span>
         </div>
 
-        {/* Icon */}
+        {/* Icon - Usar el icono del backend */}
         <div className="mb-4">
-          <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center text-white text-xl sm:text-2xl shadow-md ${
+          <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center text-xl sm:text-2xl shadow-md ${
             isStreaming ? 'bg-blue-600 dark:bg-blue-500' : 'bg-blue-600 dark:bg-blue-500'
           }`}>
-            {isStreaming ? <FiTv /> : <FiWifi />}
+            {isStreaming ? (
+              <FiTv className="text-white" />
+            ) : (
+              <span className="text-2xl sm:text-3xl">{service.icono || "📡"}</span>
+            )}
+            {/* Icono viene del backend: service.icono (📡🌐🚀🎄) */}
           </div>
         </div>
 
@@ -49,6 +63,13 @@ const ServiceCard = ({ service, isStreaming = false, delay = 0 }) => {
         <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
           {service.name}
         </h3>
+        {service.speed && (
+          <div className="mb-2">
+            <span className="inline-block bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded">
+              ⚡ {service.speed}
+            </span>
+          </div>
+        )}
         <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-4 line-clamp-2">
           {service.description}
         </p>
@@ -92,19 +113,19 @@ const Services = () => {
         if (response && Array.isArray(response)) {
           const mappedServices = response.map((service) => ({
             id: service.id || service.orden,
-            name: service.nombreServicio || service.servicio || service.nombre || service.name,
+            name: service.titulo || service.nombreServicio || service.servicio || service.nombre || service.name,
             category: "Internet",
             description: service.descripcion || service.description || "",
             price: parseFloat(service.precio || service.price || 0),
-            currency: service.moneda || service.currency || "C$",
-            status: service.estado || service.status || "Activo",
+            currency: "C$", // La API no trae moneda, usar C$ por defecto
+            status: service.activo ? "Activo" : "Inactivo", // Convertir boolean a string
             speed: service.velocidad || service.speed || "",
-            isDecemberOffer: service.etiqueta?.toUpperCase().includes('DICIEMBRE') || 
-                             service.etiqueta?.toUpperCase().includes('OFERTA') ||
-                             service.label?.toUpperCase().includes('DICIEMBRE') ||
-                             service.label?.toUpperCase().includes('OFERTA') ||
-                             false,
-            label: service.etiqueta || service.label || ""
+            icono: service.icono || "📡", // Icono del backend
+            etiqueta: service.etiqueta || null,
+            colorEtiqueta: service.colorEtiqueta || null, // Color de la etiqueta del backend
+            destacado: service.destacado || false,
+            caracteristicas: service.caracteristicas || null,
+            orden: service.orden || service.id
           }));
           
           setServices(mappedServices);
@@ -113,19 +134,19 @@ const Services = () => {
           // Si la respuesta viene envuelta en un objeto con propiedad data
           const mappedServices = response.data.map((service) => ({
             id: service.id || service.orden,
-            name: service.nombreServicio || service.servicio || service.nombre || service.name,
+            name: service.titulo || service.nombreServicio || service.servicio || service.nombre || service.name,
             category: "Internet",
             description: service.descripcion || service.description || "",
             price: parseFloat(service.precio || service.price || 0),
-            currency: service.moneda || service.currency || "C$",
-            status: service.estado || service.status || "Activo",
+            currency: "C$", // La API no trae moneda, usar C$ por defecto
+            status: service.activo ? "Activo" : "Inactivo", // Convertir boolean a string
             speed: service.velocidad || service.speed || "",
-            isDecemberOffer: service.etiqueta?.toUpperCase().includes('DICIEMBRE') || 
-                             service.etiqueta?.toUpperCase().includes('OFERTA') ||
-                             service.label?.toUpperCase().includes('DICIEMBRE') ||
-                             service.label?.toUpperCase().includes('OFERTA') ||
-                             false,
-            label: service.etiqueta || service.label || ""
+            icono: service.icono || "📡", // Icono del backend
+            etiqueta: service.etiqueta || null,
+            colorEtiqueta: service.colorEtiqueta || null, // Color de la etiqueta del backend
+            destacado: service.destacado || false,
+            caracteristicas: service.caracteristicas || null,
+            orden: service.orden || service.id
           }));
           
           setServices(mappedServices);

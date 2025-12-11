@@ -45,7 +45,7 @@ const PaymentMethodCard = ({ method, delay = 0 }) => {
               <FiCreditCard className="text-yellow-600 dark:text-yellow-400 text-2xl sm:text-3xl" />
             </div>
             <span className="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 text-xs sm:text-sm font-semibold px-3 sm:px-4 py-1 sm:py-2 rounded-full">
-              Próximamente Disponible
+              {method.mensaje || "Próximamente Disponible"}
             </span>
           </div>
         ) : (
@@ -139,47 +139,70 @@ const PaymentMethods = () => {
 
   // Función auxiliar para mapear los métodos de pago
   const mapPaymentMethods = (apiMethods) => {
+    // Filtrar solo los activos y ordenar por "orden"
+    const activeMethods = apiMethods
+      .filter(method => method.activo === true || method.activo === undefined) // Solo activos
+      .sort((a, b) => (a.orden || a.id || 0) - (b.orden || b.id || 0)); // Ordenar por "orden"
+    
     // Agrupar por banco
     const grouped = {};
     
-    apiMethods.forEach((method) => {
-      // Soportar múltiples nombres de campos (de la API real y fallback)
+    activeMethods.forEach((method) => {
+      // Usar los campos exactos del backend
       const bankName = method.nombreBanco || method.banco || method.bank || method.name;
       const accountType = method.tipoCuenta || method.tipo || method.type;
       const accountNumber = method.numeroCuenta || method.cuenta || method.account || method.number;
       const mensaje = method.mensaje || method.message;
       const icono = method.icono || method.icon;
+      const moneda = method.moneda;
+      const orden = method.orden || method.id;
       
       if (!grouped[bankName]) {
         grouped[bankName] = {
           name: bankName,
-          logo: icono || getBankLogo(bankName),  // Usar el icono de la API si existe
+          logo: icono || "🏦",  // Usar el icono de la API (🏦🏛️💳), fallback solo si no viene
           accounts: [],
-          comingSoon: false
+          comingSoon: false,
+          mensaje: null, // Mensaje para "Próximamente"
+          orden: orden // Guardar orden para ordenar después
         };
       }
       
       // Verificar si es "Próximamente"
       if (accountType?.toLowerCase().includes('próximamente') || 
           accountType?.toLowerCase().includes('proximamente') ||
-          mensaje?.toLowerCase().includes('próximamente')) {
+          mensaje?.toLowerCase().includes('próximamente') ||
+          mensaje?.toLowerCase().includes('proximamente')) {
         grouped[bankName].comingSoon = true;
-      } else if (accountNumber && accountNumber !== '-' && accountNumber !== '') {
+        grouped[bankName].mensaje = mensaje || "Próximamente Disponible"; // Guardar mensaje del backend
+      } else if (accountNumber && accountNumber !== null && accountNumber !== '-') {
         grouped[bankName].accounts.push({
           type: accountType,
-          symbol: method.moneda || getAccountSymbol(accountType, accountNumber),  // Usar moneda de la API
-          number: accountNumber
+          symbol: moneda || getAccountSymbol(accountType, accountNumber),  // Usar moneda exacta del backend
+          number: accountNumber,
+          orden: orden // Guardar orden para ordenar cuentas
         });
       }
     });
     
-    return Object.values(grouped).map((method, index) => ({
-      id: index + 1,
-      ...method
-    }));
+    // Ordenar cuentas dentro de cada banco por "orden"
+    Object.keys(grouped).forEach(bankName => {
+      if (grouped[bankName].accounts.length > 0) {
+        grouped[bankName].accounts.sort((a, b) => (a.orden || 0) - (b.orden || 0));
+      }
+    });
+    
+    // Convertir a array y ordenar por "orden" del banco
+    return Object.values(grouped)
+      .sort((a, b) => (a.orden || 0) - (b.orden || 0))
+      .map((method, index) => ({
+        id: index + 1,
+        ...method
+      }));
   };
 
-  // Función auxiliar para obtener el logo del banco
+  // Función auxiliar para obtener el logo del banco (DEPRECADA - El backend siempre trae icono)
+  // Se mantiene solo como fallback de emergencia
   const getBankLogo = (bankName) => {
     const name = bankName?.toLowerCase() || '';
     if (name.includes('banpro')) return '🏦';
@@ -280,3 +303,4 @@ const PaymentMethods = () => {
 };
 
 export default PaymentMethods;
+
