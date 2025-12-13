@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 // import { internetServices } from '../data/services';
 import { LandingService } from '../services/api.service';
 // import { streamingServices } from '../data/services'; // Comentado - Streaming oculto por solicitud del cliente
-import { FiWifi, FiCheck, FiTag, FiAlertCircle, FiTv, FiX, FiInfo } from 'react-icons/fi';
+import { FiWifi, FiCheck, FiTag, FiAlertCircle, FiTv, FiX, FiInfo, FiArrowRight } from 'react-icons/fi';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
 // Modal Component
@@ -152,15 +152,9 @@ const ServiceModal = ({ service, isOpen, onClose }) => {
 const ServiceCard = ({ service, isStreaming = false, delay = 0, onCardClick }) => {
   const [ref, isVisible] = useScrollAnimation({ threshold: 0.1 });
 
-  const handleClick = () => {
+  const handleMoreInfoClick = (e) => {
+    e.stopPropagation(); // Evitar que se propague el click
     if (service.mensaje && onCardClick) {
-      onCardClick(service);
-    }
-  };
-
-  const handleKeyDown = (e) => {
-    if ((e.key === 'Enter' || e.key === ' ') && service.mensaje && onCardClick) {
-      e.preventDefault();
       onCardClick(service);
     }
   };
@@ -174,15 +168,8 @@ const ServiceCard = ({ service, isStreaming = false, delay = 0, onCardClick }) =
           : 'border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'
       } ${
         isVisible ? 'scroll-visible' : 'scroll-hidden'
-      } ${
-        service.mensaje ? 'cursor-pointer' : ''
       }`}
       style={{ transitionDelay: `${delay}ms` }}
-      onClick={handleClick}
-      onKeyDown={handleKeyDown}
-      tabIndex={service.mensaje ? 0 : -1}
-      role={service.mensaje ? 'button' : undefined}
-      aria-label={service.mensaje ? `Ver información de ${service.name}` : undefined}
     >
       <div className="p-4 sm:p-6">
         {/* Status Badge and Etiqueta Badge */}
@@ -251,6 +238,21 @@ const ServiceCard = ({ service, isStreaming = false, delay = 0, onCardClick }) =
             </div>
           </div>
         </div>
+
+        {/* Botón Más Información - Solo si tiene mensaje */}
+        {service.mensaje && (
+          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <button
+              onClick={handleMoreInfoClick}
+              className="w-full flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-semibold py-2.5 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              aria-label={`Ver más información sobre ${service.name}`}
+            >
+              <FiInfo className="text-base" />
+              <span>Más Información</span>
+              <FiArrowRight className="text-base" />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
