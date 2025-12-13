@@ -1,13 +1,169 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 // ❌ DATOS ESTÁTICOS DESHABILITADOS - SOLO USA LA API
 // import { internetServices } from '../data/services';
 import { LandingService } from '../services/api.service';
 // import { streamingServices } from '../data/services'; // Comentado - Streaming oculto por solicitud del cliente
-import { FiWifi, FiCheck, FiTag, FiAlertCircle, FiTv } from 'react-icons/fi';
+import { FiWifi, FiCheck, FiTag, FiAlertCircle, FiTv, FiX, FiInfo } from 'react-icons/fi';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
-const ServiceCard = ({ service, isStreaming = false, delay = 0 }) => {
+// Modal Component
+const ServiceModal = ({ service, isOpen, onClose }) => {
+  const originalOverflowRef = useRef(null);
+  const originalPaddingRightRef = useRef(null);
+
+  // Efecto para manejar el scroll del body - DEBE estar antes del return
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    if (isOpen && service) {
+      // Guardar el estado actual ANTES de cambiarlo
+      originalOverflowRef.current = window.getComputedStyle(document.body).overflow;
+      originalPaddingRightRef.current = window.getComputedStyle(document.body).paddingRight;
+      
+      // Bloquear scroll
+      document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = '0px';
+      
+      // Agregar listener para ESC
+      document.addEventListener('keydown', handleEscape);
+    }
+
+    // Cleanup: siempre se ejecuta cuando isOpen cambia o el componente se desmonta
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      // Restaurar el overflow original
+      if (originalOverflowRef.current !== null) {
+        document.body.style.overflow = originalOverflowRef.current;
+      } else {
+        document.body.style.overflow = '';
+      }
+      if (originalPaddingRightRef.current !== null) {
+        document.body.style.paddingRight = originalPaddingRightRef.current;
+      } else {
+        document.body.style.paddingRight = '';
+      }
+    };
+  }, [isOpen, onClose, service]);
+
+  // Return null DESPUÉS de los hooks
+  if (!isOpen || !service) return null;
+
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50 backdrop-blur-sm animate-fadeIn"
+      onClick={handleBackdropClick}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+    >
+      <div
+        className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto transform transition-all animate-scaleIn"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-500 dark:from-blue-700 dark:to-blue-600 p-6 rounded-t-2xl flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 bg-white bg-opacity-20 rounded-xl flex items-center justify-center text-3xl backdrop-blur-sm">
+              {service.icono || "📡"}
+            </div>
+            <div>
+              <h3 id="modal-title" className="text-xl font-bold text-white">
+                {service.name}
+              </h3>
+              {service.speed && (
+                <p className="text-blue-100 text-sm">⚡ {service.speed}</p>
+              )}
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-2 transition-colors focus:outline-none focus:ring-2 focus:ring-white"
+            aria-label="Cerrar modal"
+          >
+            <FiX className="text-xl" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-6">
+          <div className="mb-6">
+            <div className="flex items-center space-x-2 mb-3">
+              <FiInfo className="text-blue-600 dark:text-blue-400 text-xl" />
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Información Importante
+              </h4>
+            </div>
+            <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 rounded-lg p-4">
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
+                {service.mensaje || 'No hay información adicional disponible.'}
+              </p>
+            </div>
+          </div>
+
+          {/* Service Details */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Precio</p>
+              <p className="text-lg font-bold text-gray-900 dark:text-white">
+                {service.currency} {service.price.toLocaleString('es-NI', { minimumFractionDigits: 2 })}
+              </p>
+            </div>
+            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Estado</p>
+              <p className="text-lg font-semibold text-green-600 dark:text-green-400">
+                {service.status}
+              </p>
+            </div>
+          </div>
+
+          {/* Description */}
+          <div className="mb-6">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Descripción</p>
+            <p className="text-gray-700 dark:text-gray-300">
+              {service.description}
+            </p>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="sticky bottom-0 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-b-2xl border-t border-gray-200 dark:border-gray-600">
+          <button
+            onClick={onClose}
+            className="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            Entendido
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ServiceCard = ({ service, isStreaming = false, delay = 0, onCardClick }) => {
   const [ref, isVisible] = useScrollAnimation({ threshold: 0.1 });
+
+  const handleClick = () => {
+    if (service.mensaje && onCardClick) {
+      onCardClick(service);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if ((e.key === 'Enter' || e.key === ' ') && service.mensaje && onCardClick) {
+      e.preventDefault();
+      onCardClick(service);
+    }
+  };
 
   return (
     <div 
@@ -18,8 +174,15 @@ const ServiceCard = ({ service, isStreaming = false, delay = 0 }) => {
           : 'border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'
       } ${
         isVisible ? 'scroll-visible' : 'scroll-hidden'
+      } ${
+        service.mensaje ? 'cursor-pointer' : ''
       }`}
       style={{ transitionDelay: `${delay}ms` }}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      tabIndex={service.mensaje ? 0 : -1}
+      role={service.mensaje ? 'button' : undefined}
+      aria-label={service.mensaje ? `Ver información de ${service.name}` : undefined}
     >
       <div className="p-4 sm:p-6">
         {/* Status Badge and Etiqueta Badge */}
@@ -101,6 +264,23 @@ const Services = () => {
   const [services, setServices] = useState([]); // ❌ SIN datos estáticos - SOLO API
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedService, setSelectedService] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleCardClick = (service) => {
+    setSelectedService(service);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedService(null);
+    // Asegurar que el scroll se restaure
+    setTimeout(() => {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    }, 100);
+  };
 
   // Cargar servicios desde la API
   useEffect(() => {
@@ -125,6 +305,7 @@ const Services = () => {
             colorEtiqueta: service.colorEtiqueta || null, // Color de la etiqueta del backend
             destacado: service.destacado || false,
             caracteristicas: service.caracteristicas || null,
+            mensaje: service.mensaje || null, // Mensaje del backend
             orden: service.orden || service.id
           }));
           
@@ -146,6 +327,7 @@ const Services = () => {
             colorEtiqueta: service.colorEtiqueta || null, // Color de la etiqueta del backend
             destacado: service.destacado || false,
             caracteristicas: service.caracteristicas || null,
+            mensaje: service.mensaje || null, // Mensaje del backend
             orden: service.orden || service.id
           }));
           
@@ -211,6 +393,7 @@ const Services = () => {
                   <ServiceCard 
                     service={service} 
                     delay={index * 100}
+                    onCardClick={handleCardClick}
                   />
                 </div>
               ))}
@@ -250,6 +433,13 @@ const Services = () => {
         </div>
         */}
       </div>
+
+      {/* Modal para mostrar mensaje */}
+      <ServiceModal
+        service={selectedService}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </section>
   );
 };
