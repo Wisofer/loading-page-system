@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { FiSend, FiUser, FiMail, FiPhone, FiMessageSquare, FiCheckCircle, FiAlertCircle, FiLoader } from 'react-icons/fi';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 import { LandingService } from '../services/api.service';
+import LocationAutocomplete from './LocationAutocomplete';
 
 const ContactForm = () => {
   const [ref, isVisible] = useScrollAnimation({ threshold: 0.1 });
@@ -11,8 +12,12 @@ const ContactForm = () => {
     nombre: '',
     correo: '',
     telefono: '',
+    ubicacion: '',
     mensaje: ''
   });
+  
+  // Estado para la ubicación completa (con coordenadas)
+  const [locationData, setLocationData] = useState(null);
   
   // Estado de envío
   const [status, setStatus] = useState({
@@ -30,6 +35,15 @@ const ContactForm = () => {
     }));
   };
 
+  // Manejar cambio de ubicación
+  const handleLocationChange = (location) => {
+    setLocationData(location);
+    setFormData(prev => ({
+      ...prev,
+      ubicacion: location ? location.direccion : ''
+    }));
+  };
+
   // Enviar formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,7 +51,17 @@ const ContactForm = () => {
     setStatus({ loading: true, success: false, error: null });
     
     try {
-      await LandingService.enviarContacto(formData);
+      // Preparar datos con ubicación
+      const dataToSend = {
+        ...formData,
+        // Si hay datos de ubicación, incluir coordenadas
+        ...(locationData && {
+          latitud: locationData.latitud,
+          longitud: locationData.longitud
+        })
+      };
+      
+      await LandingService.enviarContacto(dataToSend);
       
       setStatus({ loading: false, success: true, error: null });
       
@@ -46,8 +70,10 @@ const ContactForm = () => {
         nombre: '',
         correo: '',
         telefono: '',
+        ubicacion: '',
         mensaje: ''
       });
+      setLocationData(null);
       
       // Resetear mensaje de éxito después de 5 segundos
       setTimeout(() => {
@@ -188,6 +214,22 @@ const ContactForm = () => {
                   className="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                 />
               </div>
+            </div>
+
+            {/* Ubicación */}
+            <div className="relative">
+              <label 
+                htmlFor="ubicacion" 
+                className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+              >
+                Ubicación
+              </label>
+              <LocationAutocomplete
+                value={formData.ubicacion}
+                onChange={handleLocationChange}
+                placeholder="Escribe tu dirección o ubicación..."
+                required
+              />
             </div>
 
             {/* Mensaje */}
