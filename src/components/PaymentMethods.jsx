@@ -224,8 +224,14 @@ const PaymentMethods = () => {
   };
 
   return (
-    <section id="payments" className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 bg-white dark:bg-gray-900 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto">
+    <section id="payments" className="relative py-12 sm:py-16 lg:py-20 px-4 sm:px-6 overflow-hidden transition-colors duration-300">
+      {/* Fondo con gradiente */}
+      <div className="absolute inset-0 bg-gradient-to-tl from-white via-gray-50 to-indigo-50 dark:from-gray-900 dark:via-gray-900 dark:to-blue-950"></div>
+      
+      {/* Efectos de glow sutiles */}
+      <div className="absolute top-0 left-1/3 w-[350px] h-[350px] bg-blue-400/10 dark:bg-blue-500/5 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-1/4 right-0 w-[250px] h-[250px] bg-indigo-400/10 dark:bg-indigo-500/5 rounded-full blur-3xl"></div>
+      <div className="relative max-w-7xl mx-auto">
         <div 
           ref={headerRef}
           className={`text-center mb-10 sm:mb-12 lg:mb-16 ${
@@ -259,11 +265,11 @@ const PaymentMethods = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400"></div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-10 lg:mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-10 lg:mb-12">
             {methods.map((method, index) => (
-              <PaymentMethodCard key={method.id} method={method} delay={index * 150} />
-            ))}
-          </div>
+            <PaymentMethodCard key={method.id} method={method} delay={index * 150} />
+          ))}
+        </div>
         )}
 
         {/* Info Box */}

@@ -81,13 +81,13 @@ const Navbar = () => {
             >
               {isDark ? <FiSun className="text-base lg:text-lg" /> : <FiMoon className="text-base lg:text-lg" />}
             </button>
-            <a
-              href="mailto:atencion.al.cliente@emsinetsolut.com"
+            <button
+              onClick={() => scrollToSection('contacto')}
               className="flex items-center space-x-1.5 sm:space-x-2 px-4 lg:px-6 py-1.5 lg:py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors font-medium text-sm lg:text-base"
             >
               <FiMail className="text-base lg:text-lg" />
               <span>Contacto</span>
-            </a>
+            </button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -137,14 +137,13 @@ const Navbar = () => {
               <FiCreditCard className="text-lg" />
               <span>Pagos</span>
             </button>
-            <a
-              href="mailto:atencion.al.cliente@emsinetsolut.com"
+            <button
+              onClick={() => scrollToSection('contacto')}
               className="flex items-center justify-center space-x-2 w-full bg-blue-600 dark:bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 font-medium"
-              onClick={() => setIsMobileMenuOpen(false)}
             >
               <FiMail className="text-lg" />
               <span>Contacto</span>
-            </a>
+            </button>
           </div>
         </div>
       )}

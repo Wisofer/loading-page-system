@@ -267,6 +267,16 @@ export const LandingService = {
     const apiService = new ApiService();
     return await apiService.get(API_CONFIG.ENDPOINTS.LANDING.INFO);
   },
+
+  /**
+   * Enviar formulario de contacto
+   * @param {object} contactData - { nombre, email, telefono, mensaje }
+   * @returns {Promise}
+   */
+  enviarContacto: async (contactData) => {
+    const apiService = new ApiService();
+    return await apiService.post(API_CONFIG.ENDPOINTS.LANDING.CONTACTO, contactData);
+  },
 };
 
 // Exportar instancia de ApiService para uso genérico

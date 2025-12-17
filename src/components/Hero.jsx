@@ -5,8 +5,15 @@ const Hero = () => {
   const [ref, isVisible] = useScrollAnimation({ threshold: 0.2 });
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center bg-white dark:bg-gray-900 pt-20 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <section className="relative min-h-screen flex items-center justify-center pt-20 transition-colors duration-300 overflow-hidden">
+      {/* Fondo con gradiente */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-900 dark:to-blue-950"></div>
+      
+      {/* Efecto de resplandor sutil */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-blue-400/20 dark:bg-blue-500/10 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-indigo-400/15 dark:bg-indigo-500/10 rounded-full blur-3xl"></div>
+      
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div 
           ref={ref}
           className={`space-y-6 sm:space-y-8 ${

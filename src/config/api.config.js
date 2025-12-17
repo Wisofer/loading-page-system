@@ -31,6 +31,7 @@ export const API_CONFIG = {
       SERVICIOS: '/api/landing/servicios',           // GET - Servicios de internet
       METODOS_PAGO: '/api/landing/metodos-pago',     // GET - Métodos de pago
       INFO: '/api/landing/info',                     // GET - Todo en una llamada
+      CONTACTO: '/api/landing/contacto',             // POST - Formulario de contacto
     },
   },
   

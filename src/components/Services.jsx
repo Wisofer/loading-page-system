@@ -349,8 +349,14 @@ const Services = () => {
   }, []);
 
   return (
-    <section id="services" className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 bg-gray-50 dark:bg-gray-800/50 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto">
+    <section id="services" className="relative py-12 sm:py-16 lg:py-20 px-4 sm:px-6 overflow-hidden transition-colors duration-300">
+      {/* Fondo con gradiente */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800"></div>
+      
+      {/* Efectos de glow sutiles */}
+      <div className="absolute top-1/3 right-0 w-[400px] h-[400px] bg-blue-400/10 dark:bg-blue-500/5 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 left-1/4 w-[300px] h-[300px] bg-indigo-400/10 dark:bg-indigo-500/5 rounded-full blur-3xl"></div>
+      <div className="relative max-w-7xl mx-auto">
         {/* Internet Services */}
         <div className="mb-12 sm:mb-16 lg:mb-20">
           <div 
@@ -386,20 +392,20 @@ const Services = () => {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400"></div>
             </div>
           ) : (
-            <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
               {services.map((service, index) => (
-                <div
-                  key={service.id}
-                  className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] max-w-sm"
-                >
-                  <ServiceCard 
-                    service={service} 
-                    delay={index * 100}
+              <div
+                key={service.id}
+                className="w-full sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] max-w-sm"
+              >
+                <ServiceCard 
+                  service={service} 
+                  delay={index * 100}
                     onCardClick={handleCardClick}
-                  />
-                </div>
-              ))}
-            </div>
+                />
+              </div>
+            ))}
+          </div>
           )}
         </div>
 
