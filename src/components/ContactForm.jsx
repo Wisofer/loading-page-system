@@ -227,8 +227,8 @@ const ContactForm = () => {
               <LocationAutocomplete
                 value={formData.ubicacion}
                 onChange={handleLocationChange}
-                placeholder="Escribe tu dirección o ubicación..."
-                required
+                placeholder="Presiona el botón para obtener ubicación"
+                required={false}
               />
             </div>
 
