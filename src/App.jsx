@@ -8,7 +8,7 @@ import Footer from './components/Footer';
 
 function App() {
   useEffect(() => {
-    // Detectar si viene de un PDF o tiene parámetro para ir directo a pagos
+    // Detectar si viene de un PDF o tiene parámetro para ir directo a pagos o contacto
     const urlParams = new URLSearchParams(window.location.search);
     const hash = window.location.hash;
     
@@ -18,6 +18,16 @@ function App() {
         const paymentsSection = document.getElementById('payments');
         if (paymentsSection) {
           paymentsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 500); // Pequeño delay para asegurar que la página cargó
+    }
+    
+    // Si hay hash #contacto o #contact, ir directo a formulario de contacto
+    if (hash === '#contacto' || hash === '#contact') {
+      setTimeout(() => {
+        const contactSection = document.getElementById('contacto');
+        if (contactSection) {
+          contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       }, 500); // Pequeño delay para asegurar que la página cargó
     }
