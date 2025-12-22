@@ -69,11 +69,11 @@ const LocationAutocomplete = ({ value, onChange, placeholder = "Obtener mi ubica
             ? addressParts.join(', ')
             : data.display_name || `${latitude}, ${longitude}`;
 
-          // Guardar datos
+          // Guardar datos (asegurar que las coordenadas sean números)
           const locationInfo = {
             direccion: fullAddress,
-            latitud: latitude,
-            longitud: longitude,
+            latitud: Number(latitude),  // Convertir explícitamente a número
+            longitud: Number(longitude), // Convertir explícitamente a número
             detalles: {
               name: addr.amenity || addr.shop || addr.building || data.name,
               street: addr.road,
@@ -97,8 +97,8 @@ const LocationAutocomplete = ({ value, onChange, placeholder = "Obtener mi ubica
           const fallbackAddress = `${latitude}, ${longitude}`;
           const locationInfo = {
             direccion: fallbackAddress,
-            latitud: latitude,
-            longitud: longitude,
+            latitud: Number(latitude),  // Convertir explícitamente a número
+            longitud: Number(longitude), // Convertir explícitamente a número
             detalles: null
           };
           

@@ -51,15 +51,54 @@ const ContactForm = () => {
     setStatus({ loading: true, success: false, error: null });
     
     try {
-      // Preparar datos con ubicación
+      // Convertir coordenadas a números explícitamente
+      let latitud = null;
+      let longitud = null;
+      
+      if (locationData?.latitud !== undefined && locationData?.latitud !== null) {
+        latitud = Number(locationData.latitud);
+        // Validar que sea un número válido y esté en rango válido
+        if (isNaN(latitud) || latitud < -90 || latitud > 90) {
+          latitud = null;
+        }
+      }
+      
+      if (locationData?.longitud !== undefined && locationData?.longitud !== null) {
+        longitud = Number(locationData.longitud);
+        // Validar que sea un número válido y esté en rango válido
+        if (isNaN(longitud) || longitud < -180 || longitud > 180) {
+          longitud = null;
+        }
+      }
+      
+      // Preparar datos con ubicación y coordenadas
+      // IMPORTANTE: SIEMPRE incluir latitud y longitud (como números o null)
       const dataToSend = {
-        ...formData,
-        // Si hay datos de ubicación, incluir coordenadas
-        ...(locationData && {
-          latitud: locationData.latitud,
-          longitud: locationData.longitud
-        })
+        nombre: formData.nombre.trim(),
+        correo: formData.correo.trim(),
+        telefono: formData.telefono.trim(),
+        mensaje: formData.mensaje.trim(),
+        ubicacion: formData.ubicacion ? formData.ubicacion.trim() : null,
+        // Coordenadas: SIEMPRE enviar, como número o null (nunca omitir)
+        latitud: latitud,   // Puede ser número o null
+        longitud: longitud  // Puede ser número o null
       };
+      
+      // Asegurar que siempre estén presentes (incluso si son null)
+      if (!('latitud' in dataToSend)) {
+        dataToSend.latitud = null;
+      }
+      if (!('longitud' in dataToSend)) {
+        dataToSend.longitud = null;
+      }
+      
+      // Verificar que las coordenadas sean números antes de enviar
+      if (dataToSend.latitud !== null && typeof dataToSend.latitud !== 'number') {
+        dataToSend.latitud = Number(dataToSend.latitud);
+      }
+      if (dataToSend.longitud !== null && typeof dataToSend.longitud !== 'number') {
+        dataToSend.longitud = Number(dataToSend.longitud);
+      }
       
       await LandingService.enviarContacto(dataToSend);
       
