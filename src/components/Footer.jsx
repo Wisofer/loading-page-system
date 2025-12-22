@@ -85,7 +85,7 @@ const Footer = () => {
             Internet de calidad para tu hogar
           </p>
           <p className="text-xs text-gray-600 dark:text-gray-500 mt-3 sm:mt-4 font-semibold">
-            POWERED BY{' '}
+            DESARROLLADO POR{' '}
             <a
               href="https://www.cowib.es/"
               target="_blank"
